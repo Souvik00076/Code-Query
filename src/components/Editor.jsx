@@ -35,6 +35,7 @@ hljs.registerLanguage('perl', perl);
 
 const Editor = ({ data , editorId}) => {
   const languageDetected = hljs.highlightAuto(data.text).language
+  console.log(languageDetected)
   const editorRef = useRef(null)
 
   useEffect(() => {
