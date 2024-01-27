@@ -17,9 +17,6 @@ const App = () => {
       setEditors((prevEditor) => [...prevEditor, {flag:0,text:response.data[0]}]);
     }
   }, [response.data]);
-
-
-
   useEffect(() => {
     if (containerRef.current) {
       const container = containerRef.current;
@@ -55,7 +52,9 @@ const App = () => {
   const handleImageSelect=()=>{
     inputRef.current.click();
   }
-
+  const handleClick=()=>{
+    fetchData()
+  }
   const handleImageChange=(event)=>{
     const selectedFile = event.target.files[0];
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
@@ -114,6 +113,7 @@ const App = () => {
     />
     <div className='absolute right-16 flex flex-row items-center'>
     <div>
+      
     <img
 
       src={process.env.PUBLIC_URL + './icons/icons8-image-50.png'}
@@ -128,16 +128,14 @@ const App = () => {
       className='hidden'
       />
     </div>
-    <img
-    className='h-6 w-8 cursor-pointer'
-    src={process.env.PUBLIC_URL+'./icons/icons8-microphone-64.png'}
-    alt='image-audio-button'
-    />
+    
+    
     </div>
     <img 
-    className='ml-2' 
+    className='ml-2  cursor-pointer' 
     src={process.env.PUBLIC_URL+'./icons/icons8-send-48.png'} 
     alt='image-button'
+    onClick={handleClick}
     />    
     </div>
   </div>
@@ -146,3 +144,6 @@ const App = () => {
 };
 export default App;
 
+/*
+  later to be added
+*/
