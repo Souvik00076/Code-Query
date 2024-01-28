@@ -86,7 +86,9 @@ const App = () => {
     <div className='flex mx-auto flex-col items-center justify-between h-screen'>
       <p className='text-2xl sm:text-6xl mt-4  text-center font-bold text-white'>
         Code Query<br/>
-        An AI powered tool that lets you search for code through queries & images.
+      </p>
+      <p>
+      An AI powered tool that lets you search for code through queries & images.
       </p>
       
       <div className='w-[90%] sm:w-[60%] h-full overflow-y-scroll no-scrollbar mt-4 sm:mt-6 py-6' ref={containerRef}>
