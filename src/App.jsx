@@ -6,16 +6,22 @@ const App = () => {
   const [prompt, setPrompt] = useState({data:null,usage_flag:false});
   const [input, setInput] = useState('Search');
   const [editors, setEditors] = useState([])
-  const [selectedImage, setSelectedImage] = useState(null)
+  const [loading,setLoading]=useState(false)
 
   const response = useFetch(prompt);
   const containerRef = useRef(null);
   const inputRef=useRef(null)
 
   useEffect(() => {
-    if (response.data) {
-      setEditors((prevEditor) => [...prevEditor, {flag:0,text:response.data[0]}]);
-    }
+    const data=response.data
+    if (data) {
+      if(data[0].err==='YES'){
+       setEditors((prevEditor)=>[...prevEditor,{flag:1,text:data[0].text,err:true}])
+      }
+       else setEditors((prevEditor) => [...prevEditor, {flag:0,text:response.data[0]}]);
+       setLoading(false)
+      }
+    
   }, [response.data]);
   useEffect(() => {
     if (containerRef.current) {
@@ -24,7 +30,7 @@ const App = () => {
       const currentScroll = container.scrollTop;
       const targetScroll = scrollHeight - container.clientHeight;
       const startTime = performance.now();
-      const duration = 500; // Adjust the duration as needed (in milliseconds)
+      const duration = 500; 
   
       const animateScroll = (timestamp) => {
         const progress = Math.min((timestamp - startTime) / duration, 1);
@@ -38,11 +44,14 @@ const App = () => {
     }
   }, [editors]);
   const fetchData = () => {
+    
     setPrompt({...prompt,data:input,usage_flag:false});
     setEditors((prevEditor) => [...prevEditor, { flag: 1, text: input }]);
     setInput('Search');
+    setLoading(true)
   };
   const handleInputEnter = (e) => {
+    if(loading===true) return 
     if (e.code === 'Enter') {
       fetchData();
       e.target.blur()
@@ -59,8 +68,15 @@ const App = () => {
     const selectedFile = event.target.files[0];
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
     if (allowedTypes.includes(selectedFile.type)) {
-    setPrompt({data:selectedFile,usage_flag:true})
+    let promptExtra=undefined
+    if(input.toUpperCase()!=='SEARCH'){
+       promptExtra=input
+       setEditors((prevEditor)=>[...prevEditor,{flag:1,text:promptExtra}])
+       setInput('Search')
+    }
+    setPrompt({data:selectedFile,usage_flag:true,promptExtra})
     setEditors((prevEditor) => [...prevEditor, { flag: 2, text: URL.createObjectURL(selectedFile) }])
+    setLoading(true)
     }
     else 
     alert('Please select a JPEG, JPG, or PNG image file.');
@@ -68,7 +84,7 @@ const App = () => {
 
   return (
     <div className='flex mx-auto flex-col items-center justify-between h-screen'>
-      <p className='text-6xl mt-4  text-center font-bold text-white'>
+      <p className='text-2xl sm:text-6xl mt-4  text-center font-bold text-white'>
         Code Query
       </p>
       
@@ -77,7 +93,7 @@ const App = () => {
           <ul>
             {editors.map((item, idx) => (
               <li key={idx}>
-                <div className={`border-2 ${item.error}? border-red-600: border-teal-500   mt-6 px-4 py-2  rounded-xl`}>
+             <div className={`border-2 ${item.err === true ? 'border-red-600 border-4 text-center font-bold text' : 'border-teal-500'} mt-6 px-4 py-2 rounded-xl`}>
                   {(item && item.flag===1 && item.text) && (
                     <div className='text-white'>{item.text}</div>
                   )}
@@ -86,15 +102,8 @@ const App = () => {
                   )}
                   {
                     (item && item.flag==2 && item.text) &&(
-                      <div><img src={item.text} alt={idx} /></div>
+                      <div><img className='w-[100%]' src={item.text} alt={idx} /></div>
                     )
-                  }
-                  {
-                    
-                    (item && item.error) && (
-                      <div>{item.error}</div>
-                    )
-
                   }
                 </div>
               </li>
@@ -103,7 +112,15 @@ const App = () => {
         )}
       </div>
   <div className='w-[90%] sm:w-[60%] mt-6 mb-6'>
-  <div className='flex items-center relative'>
+  {loading && (
+    <div className='w-full'>
+    <div className='h-1.5 w-full bg-pink-100 overflow-hidden'>
+      <div className='animate-progress w-full h-full bg-teal-500 origin-left-right'></div>
+    </div>
+  </div>
+  )}
+  {!loading && (
+    <div className='flex items-center relative'>
     <input
       className='w-full bg-black bg-opacity-30 rounded-full px-2 py-2 text-white font-bold placeholder-white focus:outline-none'
       value={input}
@@ -138,12 +155,10 @@ const App = () => {
     onClick={handleClick}
     />    
     </div>
+  )}
+  
   </div>
 </div>
   );
 };
 export default App;
-
-/*
-  later to be added
-*/

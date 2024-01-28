@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react'
 import { GoogleGenerativeAI } from "@google/generative-ai"
-const getGenKey=()=>new GoogleGenerativeAI('AIzaSyAKjKavlubhJtXD-EvFB_bJgHN8Dlc5XFE');
+const getGenKey=()=>new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_API_KEY);
 const fileToGenerativePart=async(file)=>{
   const base64EncodedDataPromise = new Promise((resolve) => {
     const reader = new FileReader();
@@ -11,52 +11,47 @@ const fileToGenerativePart=async(file)=>{
     inlineData: { data: await base64EncodedDataPromise, mimeType: file.type },
   };
 }
-function containsProgrammingLanguage(str) {
-  const programmingLanguages = ["JAVASCRIPT", "CSS", "DTD", "GO", "PERL", "PHP", "PYTHON", "RUBY", "SQL", "SWIFT"];
-  for (const language of programmingLanguages) {
-    if (str.includes(language)) {
-      return true;
-    }
-  }
-  return false;
-}
 const fetchFromPro=async(prompt)=>{
-  if(containsProgrammingLanguage(prompt)===false){
-    console.log("here")
-    return -1e9
-  }
+ 
   const genAI=getGenKey()
   const model = genAI.getGenerativeModel({ model: "gemini-pro" })
   let response=undefined
   try{
+    
     const result = await model.generateContent(prompt)
-    response = result.response.candidates[0].content.parts
+    console.log("called in vision3",prompt)
+    response = result.response.candidates[0].finishReason.toUpperCase()==='STOP'?
+               result.response.candidates[0].content?.parts:[{text:"Something went wrong",err:'YES'}]
+
     }catch(error){
         return error
     }
+    console.log("called in vision2")
     return response
 }
 const fetchFromVision=async(prompt)=>{
+    console.log("called in vision")
+    let promptExtra='If this image contains coding quesions including database also provide only the code no description needed. Line Number not needed'
+    if(prompt.promptExtra) promptExtra=prompt.promptExtra
     //code for vision goes here
     const genAI=getGenKey()  
     const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" })
-    const promptExtra='If this image contains coding quesions including database also provide only the code no description needed. Line Number not needed'
-    const parts=await fileToGenerativePart(prompt)
+    const parts=await fileToGenerativePart(prompt.data)
     const result = await model.generateContent([promptExtra, [parts]])
-    const response =result.response.candidates[0].content.parts
+    console.log(result.response.candidates[0].finishReason)
+    const response=(result.response.candidates[0].finishReason.toUpperCase())==='STOP'?
+                    result.response.candidates[0].content?.parts:[{text:"Something went wrong",err:"YES"}]
     console.log(response)
     return response
 }
 const fetchData=async(getPrompt)=>{
     const prompt=getPrompt()
-    const promptExtra=prompt.data+' provide only the code no description needed.'
-    console.log(promptExtra)
     if(prompt.usage_flag===false){
+    const promptExtra=prompt.data+' provide only the code no description needed.'
     const  response=await fetchFromPro(promptExtra)
     return response
     }
-    let response=await fetchFromVision(prompt.data)
-    
+    let response=await fetchFromVision(prompt)
     return response
 }
 const useFetch=(prompt)=>{
@@ -66,14 +61,12 @@ const useFetch=(prompt)=>{
         if(prompt.data===null) return ;
         (
             async ()=>{
-                try{
-              
+                try{ 
                 const fetchedData=await fetchData(()=>prompt)
-                if(fetchedData===-1e9)  throw new Error('Code language not mentioned')
                 setData(fetchedData)
                 }catch(error){
-                  console.log("here in error")
-                    setError(error)
+                  console.log(error)
+                    setError('Something error occured. Please try again later')
                 }
             }
         )()
