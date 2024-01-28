@@ -87,7 +87,7 @@ const App = () => {
       <p className='text-2xl sm:text-6xl mt-4  text-center font-bold text-white'>
         Code Query<br/>
       </p>
-      <p>
+      <p className='text-white font-bold'>
       An AI powered tool that lets you search for code through queries & images.
       </p>
       
