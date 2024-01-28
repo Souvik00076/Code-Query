@@ -85,7 +85,8 @@ const App = () => {
   return (
     <div className='flex mx-auto flex-col items-center justify-between h-screen'>
       <p className='text-2xl sm:text-6xl mt-4  text-center font-bold text-white'>
-        Code Query
+        Code Query<br/>
+        An AI powered tool that lets you search for code through queries & images.
       </p>
       
       <div className='w-[90%] sm:w-[60%] h-full overflow-y-scroll no-scrollbar mt-4 sm:mt-6 py-6' ref={containerRef}>
@@ -111,7 +112,7 @@ const App = () => {
           </ul>
         )}
       </div>
-  <div className='w-[90%] sm:w-[60%] sm:mb-6 mt-6 mb-2'>
+  <div className='w-[90%] sm:w-[60%] sm:mb-6 mt-6 mb-20'>
   {loading && (
     <div className='w-full'>
     <div className='h-1.5 w-full bg-pink-100 overflow-hidden'>
