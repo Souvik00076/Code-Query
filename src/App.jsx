@@ -111,7 +111,7 @@ const App = () => {
           </ul>
         )}
       </div>
-  <div className='w-[90%] sm:w-[60%] mt-6 mb-6'>
+  <div className='w-[90%] sm:w-[60%] sm:mb-6 mt-6 mb-12'>
   {loading && (
     <div className='w-full'>
     <div className='h-1.5 w-full bg-pink-100 overflow-hidden'>
